@@ -34,22 +34,25 @@ namespace PressTheAttack
                 {
                     CriticalPowerMultiplier = { 2 },
                     CriticalChanceMultiplier = { 1000 },
-                    WeaponSpeedMultiplier = { 10 },
+                    WeaponSpeedMultiplier = { 3 },
                 }
             );
             return Pierce;
         }
-        private static void Prefix(ref float swipeSpeed)
+        private static void Prefix()
         {
             var player = Game1.player;
 
-            useToolCount += 1;
-
-            if (useToolCount == Threshold && !player.hasBuff("df.pierce"))
+            if (player.professions.Contains(Farmer.desperado))
             {
-                player.applyBuff(Pierce());
-                player.Money += 1; //debugging
-                useToolCount = 0;
+                useToolCount += 1;
+
+                if (useToolCount == Threshold
+                && !player.hasBuff("df.pierce"))
+                {
+                    player.applyBuff(Pierce());
+                    useToolCount = 0;
+                }
             }
         }
     }
