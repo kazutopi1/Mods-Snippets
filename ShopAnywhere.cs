@@ -1,4 +1,5 @@
 using StardewValley;
+using StardewValley.Menus;
 using StardewValley.Mobile;
 using StardewModdingAPI;
 using HarmonyLib;
@@ -8,9 +9,9 @@ namespace BlahBlah
 {
     public class Shop : Mod
     {
-        private static Response[] shops;
+        private static Response[] categories;
 
-        private static StardewValley.GameLocation.afterQuestionBehavior optionLogic;
+        private static StardewValley.GameLocation.afterQuestionBehavior categoriesOptionsLogic;
 
         private static bool wasBTapped = false;
 
@@ -31,50 +32,50 @@ namespace BlahBlah
                 {
                     if (item.QualifiedItemId.Equals("(O)388"))
                     {
-                        shops = new Response[]
+                        categories = new Response[]
                         {
-                            new Response("openCarpenter", "Robin's Shop"),
-                            new Response("openSeedShop", "Pierre's General Store"),
-                            new Response("openWeaponShop", "Adventurer's Guild Shop"),
-                            new Response("nextPage", "Next Page"),
+                            new Response("category1", "General Goods"),
+                            new Response("category2", "Combat and Mining"),
+                            new Response("category3", "Building"),
+                            new Response("others", "Others"),
                             new Response("doNothing", "Close")
                         };
-                        optionLogic = (Farmer who, string whichAnswer) =>
+                        categoriesOptionsLogic = (Farmer who, string whichAnswer) =>
                         {
-                            if (whichAnswer == "openCarpenter")
-                            {
-                                Utility.TryOpenShopMenu(
-                                    shopId: "Carpenter",
-                                    ownerName: null
-                                );
-                            }
-                            else if (whichAnswer == "openSeedShop")
-                            {
-                                Utility.TryOpenShopMenu(
-                                    shopId: "SeedShop",
-                                    ownerName: null
-                                );
-                            }
-                            else if (whichAnswer == "openWeaponShop")
-                            {
-                                Utility.TryOpenShopMenu(
-                                    shopId: "AdventureShop",
-                                    ownerName: null
-                                );
-                            }
-                            else if (whichAnswer == "nextPage")
+                            if (whichAnswer == "category1")
                             {
                                 DelayedAction.functionAfterDelay(() =>
                                 {
-                                    nextPage();
+                                    category1();
+                                }, 34);
+                            }
+                            else if (whichAnswer == "category2")
+                            {
+                                DelayedAction.functionAfterDelay(() =>
+                                {
+                                    category2();
+                                }, 34);
+                            }
+                            else if (whichAnswer == "category3")
+                            {
+                                DelayedAction.functionAfterDelay(() =>
+                                {
+                                    category3();
+                                }, 34);
+                            }
+                            else if (whichAnswer == "others")
+                            {
+                                DelayedAction.functionAfterDelay(() =>
+                                {
+                                    others();
                                 }, 34);
                             }
                         };
 
                         Game1.currentLocation.createQuestionDialogue(
-                            question: "Open which shop?",
-                            answerChoices: shops,
-                            afterDialogueBehavior: optionLogic,
+                            question: "Categories",
+                            answerChoices: categories,
+                            afterDialogueBehavior: categoriesOptionsLogic,
                             speaker: null
                         );
                     }
@@ -82,56 +83,211 @@ namespace BlahBlah
             }
             wasBTapped = __result;
         }
-        private static void nextPage()
+        private static void category1()
         {
-            Response[] page2 = new Response[]
+            Response[] cat1 = new Response[]
             {
-            new Response("openBlacksmith", "Blacksmith"),
-            new Response("openFishShop", "Willy's Shop"),
-            new Response("openSaloon", "Saloon"),
-            new Response("prevPage", "Previous Page"),
-            new Response("doNothing2", "Close")
+                new Response("seedShop", "Pierre's General Store"),
+                new Response("fishShop", "Willy's Shop"),
+                new Response("saloon", "Saloon"),
+                new Response("return", "Return")
             };
-            StardewValley.GameLocation.afterQuestionBehavior nextPage = (Farmer who, string nextPageAnswers) =>
+            StardewValley.GameLocation.afterQuestionBehavior cat1Logic = (Farmer who, string cat1answers) =>
             {
-                if (nextPageAnswers == "openBlacksmith")
+                if (cat1answers == "seedShop")
                 {
                     Utility.TryOpenShopMenu(
-                        shopId: "Blacksmith",
+                        shopId: Game1.shop_generalStore,
                         ownerName: null
                     );
                 }
-                else if (nextPageAnswers == "openFishShop")
+                else if (cat1answers == "fishShop")
                 {
                     Utility.TryOpenShopMenu(
-                        shopId: "FishShop",
+                        shopId: Game1.shop_fish,
                         ownerName: null
                     );
                 }
-                else if (nextPageAnswers == "openSaloon")
+                else if (cat1answers == "saloon")
                 {
                     Utility.TryOpenShopMenu(
-                        shopId: "Saloon",
+                        shopId: Game1.shop_saloon,
                         ownerName: null
                     );
                 }
-                else if (nextPageAnswers == "prevPage")
+                else if (cat1answers == "return")
                 {
                     DelayedAction.functionAfterDelay(() =>
                     {
                         Game1.currentLocation.createQuestionDialogue(
-                            question: "Open which shop?",
-                            answerChoices: shops,
-                            afterDialogueBehavior: optionLogic,
+                            question: "Categories",
+                            answerChoices: categories,
+                            afterDialogueBehavior: categoriesOptionsLogic,
                             speaker: null
                         );
                     }, 34);
                 }
             };
             Game1.currentLocation.createQuestionDialogue(
-                question: "Open which shop?",
-                answerChoices: page2,
-                afterDialogueBehavior: nextPage,
+                question: "General Goods",
+                answerChoices: cat1,
+                afterDialogueBehavior: cat1Logic,
+                speaker: null
+            );
+        }
+        private static void category2()
+        {
+            Response[] cat2 = new Response[]
+            {
+                new Response("adventureShop", "Adventurer's Guild Shop"),
+                new Response("blacksmith", "Clint's Shop"),
+                new Response("toolUpgrades", "Tool Upgrades"),
+                new Response("desertTrader", "Desert Trader"),
+                new Response("return2", "Return")
+            };
+            StardewValley.GameLocation.afterQuestionBehavior cat2Logic = (Farmer who, string cat2answers) =>
+            {
+                if (cat2answers == "adventureShop")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_adventurersGuild,
+                        ownerName: null
+                    );
+                }
+                else if (cat2answers == "blacksmith")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_blacksmith,
+                        ownerName: null
+                    );
+                }
+                else if (cat2answers == "toolUpgrades")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_blacksmithUpgrades,
+                        ownerName: null
+                    );
+                }
+                else if (cat2answers == "desertTrader")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_desertTrader,
+                        ownerName: null
+                    );
+                }
+                else if (cat2answers == "return2")
+                {
+                    DelayedAction.functionAfterDelay(() =>
+                    {
+                        Game1.currentLocation.createQuestionDialogue(
+                            question: "Categories",
+                            answerChoices: categories,
+                            afterDialogueBehavior: categoriesOptionsLogic,
+                            speaker: null
+                        );
+                    }, 34);
+                }
+            };
+            Game1.currentLocation.createQuestionDialogue(
+                question: "Combat and Mining",
+                answerChoices: cat2,
+                afterDialogueBehavior: cat2Logic,
+                speaker: null
+            );
+        }
+        private static void category3()
+        {
+            Response[] cat3 = new Response[]
+            {
+                new Response("carpenter", "Robin's Shop"),
+                new Response("buildBuildings", "Build Buildings"),
+                new Response("return3", "Return")
+            };
+            StardewValley.GameLocation.afterQuestionBehavior cat3Logic = (Farmer who, string cat3answers) =>
+            {
+                if (cat3answers == "carpenter")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_carpenter,
+                        ownerName: null
+                    );
+                }
+                else if (cat3answers == "buildBuildings")
+                {
+                    DelayedAction.functionAfterDelay(() =>
+                    {
+                        Game1.activeClickableMenu = new StardewValley.Menus.CarpenterMenu("Robin");
+                    }, 34);
+                }
+                else if (cat3answers == "return3")
+                {
+                    DelayedAction.functionAfterDelay(() =>
+                    {
+                        Game1.currentLocation.createQuestionDialogue(
+                            question: "Categories",
+                            answerChoices: categories,
+                            afterDialogueBehavior: categoriesOptionsLogic,
+                            speaker: null
+                        );
+                    }, 34);
+                }
+            };
+            Game1.currentLocation.createQuestionDialogue(
+                question: "Building",
+                answerChoices: cat3,
+                afterDialogueBehavior: cat3Logic,
+                speaker: null
+            );
+        }
+        private static void others()
+        {
+            Response[] oth = new Response[]
+            {
+                new Response("wanderingTrader", "Traveling Cart"),
+                new Response("dwarf", "Dwarf's Shop"),
+                new Response("krobus", "Krobus's Shop"),
+                new Response("othReturn", "Return")
+            };
+            StardewValley.GameLocation.afterQuestionBehavior othLogic = (Farmer who, string othAnswers) =>
+            {
+                if (othAnswers == "wanderingTrader")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_travelingCart,
+                        ownerName: null
+                    );
+                }
+                else if (othAnswers == "dwarf")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_dwarf,
+                        ownerName: null
+                    );
+                }
+                else if (othAnswers == "krobus")
+                {
+                    Utility.TryOpenShopMenu(
+                        shopId: Game1.shop_krobus,
+                        ownerName: null
+                    );
+                }
+                else if (othAnswers == "othReturn")
+                {
+                    DelayedAction.functionAfterDelay(() =>
+                    {
+                        Game1.currentLocation.createQuestionDialogue(
+                            question: "Categories",
+                            answerChoices: categories,
+                            afterDialogueBehavior: categoriesOptionsLogic,
+                            speaker: null
+                        );
+                    }, 34);
+                }
+            };
+            Game1.currentLocation.createQuestionDialogue(
+                question: "Other Shops",
+                answerChoices: oth,
+                afterDialogueBehavior: othLogic,
                 speaker: null
             );
         }
