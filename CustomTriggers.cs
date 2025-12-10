@@ -10,7 +10,7 @@ namespace KT_Triggers
 {
     public class Tiger : Mod
     {
-        private const double playerIFrames = 1200.0;
+        private static double playerIFrames = Farmer.millisecondsInvincibleAfterDamage;
         private static double lastDamaged = -1.0;
         private static bool wasATapped = false;
         private static bool wasBTapped = false;
@@ -75,8 +75,16 @@ namespace KT_Triggers
                 TriggerActionManager.Raise("KT_UpdateTicked");
             }
         }
-        private static void TookDamage()
+        private static void TookDamage(int damage)
         {
+            if (damage < 0)
+            {
+                return;
+            }
+            if (Game1.player.isWearingRing("861"))
+            {
+                playerIFrames = 1600.0;
+            }
             double timeNow = Game1.currentGameTime.TotalGameTime.TotalMilliseconds;
             if (timeNow - lastDamaged >= playerIFrames)
             {
