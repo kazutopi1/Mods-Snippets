@@ -93,6 +93,4 @@ namespace KT_Triggers
             TriggerActionManager.Raise("KT_UseTool");
         }
     }
-}        }
-    }
 }
