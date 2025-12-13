@@ -5,6 +5,7 @@ using StardewModdingAPI;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace ShopAnywhere
 {
@@ -15,6 +16,7 @@ namespace ShopAnywhere
         private static bool wasBTapped = false;
         private static string lastLocationName;
         private static Vector2 lastTilePos;
+        private const int Delay = 50;
 
         public override void Entry(IModHelper helper)
         {
@@ -32,6 +34,18 @@ namespace ShopAnywhere
                 original: AccessTools.Method(typeof(CarpenterMenu), nameof(CarpenterMenu.returnToCarpentryMenuAfterSuccessfulBuild)),
                 postfix: new HarmonyMethod(typeof(Shop), nameof(Shop.Postfix3))
             );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.textBoxEnter)),
+                postfix: new HarmonyMethod(typeof(Shop), nameof(Shop.Postfix4))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.setUpForReturnAfterPurchasingAnimal)),
+                postfix: new HarmonyMethod(typeof(Shop), nameof(Shop.Postfix5))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.setUpForReturnToShopMenu)),
+                postfix: new HarmonyMethod(typeof(Shop), nameof(Shop.Postfix6))
+            );
         }
         private static void Postfix(ref bool __result)
         {
@@ -46,6 +60,7 @@ namespace ShopAnywhere
                             new Response("category1", "General Goods"),
                             new Response("category2", "Combat and Mining"),
                             new Response("category3", "Building"),
+                            new Response("category4", "Animal Supplies"),
                             new Response("others", "Others"),
                             new Response("doNothing", "Close")
                         };
@@ -54,16 +69,19 @@ namespace ShopAnywhere
                             switch (whichAnswer)
                             {
                                 case "category1":
-                                    DelayedAction.functionAfterDelay(category1, 34);
+                                    DelayedAction.functionAfterDelay(category1, Delay);
                                     break;
                                 case "category2":
-                                    DelayedAction.functionAfterDelay(category2, 34);
+                                    DelayedAction.functionAfterDelay(category2, Delay);
                                     break;
                                 case "category3":
-                                    DelayedAction.functionAfterDelay(category3, 34);
+                                    DelayedAction.functionAfterDelay(category3, Delay);
+                                    break;
+                                case "category4":
+                                    DelayedAction.functionAfterDelay(category4, Delay);
                                     break;
                                 case "others":
-                                    DelayedAction.functionAfterDelay(others, 34);
+                                    DelayedAction.functionAfterDelay(others, Delay);
                                     break;
                             }
                         };
@@ -83,6 +101,18 @@ namespace ShopAnywhere
             WarpPlayer();
         }
         private static void Postfix3()
+        {
+            WarpPlayer();
+        }
+        private static void Postfix4()
+        {
+            WarpPlayer();
+        }
+        private static void Postfix5()
+        {
+            WarpPlayer();
+        }
+        private static void Postfix6()
         {
             WarpPlayer();
         }
@@ -164,6 +194,7 @@ namespace ShopAnywhere
             {
                 new Response("carpenter", "Robin's Shop"),
                 new Response("buildBuildings", "Build Buildings"),
+                new Response("wizard", "Wizard Buildings"),
                 new Response("return3", "Return")
             };
             StardewValley.GameLocation.afterQuestionBehavior cat3Logic = (Farmer who, string cat3answers) =>
@@ -174,7 +205,10 @@ namespace ShopAnywhere
                         Utility.TryOpenShopMenu(Game1.shop_carpenter, null, false);
                         break;
                     case "buildBuildings":
-                        BuildingMenu();
+                        BuildingMenu("Robin");
+                        break;
+                    case "wizard":
+                        BuildingMenu("Wizard");
                         break;
                     case "return3":
                         MainCategory();
@@ -185,6 +219,36 @@ namespace ShopAnywhere
                 question: "Building",
                 answerChoices: cat3,
                 afterDialogueBehavior: cat3Logic,
+                speaker: null
+            );
+        }
+        private static void category4()
+        {
+            Response[] cat4 = new Response[]
+            {
+                new Response("supplies", "Marnie's Shop"),
+                new Response("animalShop", "Buy Animals"),
+                new Response("return4", "Return")
+            };
+            StardewValley.GameLocation.afterQuestionBehavior cat4Logic = (Farmer who, string cat4Answers) =>
+            {
+                switch (cat4Answers)
+                {
+                    case "supplies":
+                        Utility.TryOpenShopMenu(Game1.shop_animalSupplies, null, false);
+                        break;
+                    case "animalShop":
+                        MarnieMenu();
+                        break;
+                    case "return4":
+                        MainCategory();
+                        break;
+                }
+            };
+            Game1.currentLocation.createQuestionDialogue(
+                question: "Animals",
+                answerChoices: cat4,
+                afterDialogueBehavior: cat4Logic,
                 speaker: null
             );
         }
@@ -208,7 +272,7 @@ namespace ShopAnywhere
                         Utility.TryOpenShopMenu(Game1.shop_dwarf, null, false);
                         break;
                     case "krobus":
-                        Utility.TryOpenShopMenu(Game1.shop_krobus, null, false);
+                        KrobusShop();
                         break;
                     case "othReturn":
                         MainCategory();
@@ -232,7 +296,7 @@ namespace ShopAnywhere
                     afterDialogueBehavior: categoriesOptionsLogic,
                     speaker: null
                 );
-            }, 34);
+            }, Delay);
         }
         private static void WarpPlayer()
         {
@@ -250,16 +314,38 @@ namespace ShopAnywhere
                 Game1.currentLocation.resetForPlayerEntry();
                 Game1.player.forceCanMove();
                 Game1.exitActiveMenu();
-            }, 50);
+            }, Delay);
         }
-        private static void BuildingMenu()
+        private static void BuildingMenu(string npc)
         {
             DelayedAction.functionAfterDelay(() =>
             {
                 lastLocationName = Game1.currentLocation.Name;
                 lastTilePos = Game1.player.Tile;
-                Game1.activeClickableMenu = new StardewValley.Menus.CarpenterMenu("Robin");
-            }, 34);
+                Game1.activeClickableMenu = new StardewValley.Menus.CarpenterMenu(npc);
+            }, Delay);
+        }
+        private static void MarnieMenu()
+        {
+            DelayedAction.functionAfterDelay(() =>
+            {
+                var location = Game1.player.currentLocation;
+                lastLocationName = Game1.currentLocation.Name;
+                lastTilePos = Game1.player.Tile;
+                List<StardewValley.Object> stock = Utility.getPurchaseAnimalStock(location);
+                Game1.activeClickableMenu = new StardewValley.Menus.PurchaseAnimalsMenu(stock);
+            }, Delay);
+        }
+        private static void KrobusShop()
+        {
+            if (Game1.player.hasRustyKey)
+            {
+                Utility.TryOpenShopMenu(Game1.shop_krobus, null, false);
+            }
+            else
+            {
+                Game1.drawObjectDialogue("You need to unlock the Sewers first!");
+            }
         }
     }
 }
